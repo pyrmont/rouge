@@ -72,7 +72,7 @@ module Rouge
       end
 
       state :regex_end do
-        rule /[gim]+/, Str::Regex, :pop!
+        rule /[gimuy]+/, Str::Regex, :pop!
         rule(//) { pop! }
       end
 
