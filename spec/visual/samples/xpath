@@ -1,0 +1,22 @@
+(: Comment (: Nested comment :) :)
+
+(: XPath 2.0 :)
+distinct-values(//*[not(normalize-space()))]/name()) |
+//hr[@class='edge'] |
+//h1/following-sibling::*[@(: test :)id = "id"] |
+/project/problems/solutions/$(: test :)item/@val |
+/child::/preceding::node()/para[@type="main"][3] |
+//svg//style |
+/Members/Member/Topics/TopicRef[not(. = //Topics/Option/Code)] |
+sum(for $v in order-item return $v/price * $v/quantity) |
+if (@discount) then @discount else 0 union
+for $i in 1 to 5 return (//x)[$i] |
+fn:dayTimeDuration('PT12H') * 4 |
+count(distinct-values(/Events/Event/Id)) = count(/Events/Event/Id) |
+
+(: The following should have errors :)
+10divide3 + 2 |
+10div 2 |
+
+(: This should lex correctly :)
+10 div

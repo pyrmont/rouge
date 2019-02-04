@@ -1,0 +1,2 @@
+(: This is a test :)
+following-sibling::para[position()=last()]
