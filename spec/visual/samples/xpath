@@ -1,4 +1,4 @@
-(: Comment (: Nested comment :) :)
+(: Comment (nice) (: Nested comment :) test :)
 
 (: XPath 2.0 :)
 distinct-values(//*[not(normalize-space()))]/name()) |
@@ -13,6 +13,303 @@ if (@discount) then @discount else 0 union
 for $i in 1 to 5 return (//x)[$i] |
 fn:dayTimeDuration('PT12H') * 4 |
 count(distinct-values(/Events/Event/Id)) = count(/Events/Event/Id) |
+
+(: XPath 3.0 :)
+let $f := function($nums as xs:double*,
+                   $test as function(*),
+                   $f1 as function(xs:double*, function())
+                             as xs:double
+                   ) as xs:double
+             {if(not($nums[1]))
+                 then 0
+                 else if(not($nums[2]))
+                        then $nums[1]
+                        else
+                         let $half := count($nums) idiv 2
+                          return
+                            $f1(subsequence($nums,1, $half), $f1)
+		             +
+		               $f1(subsequence($nums, $half+1), $f1)
+              },
+
+    $F := function($nums as xs:double*) as xs:double
+            {
+                $f($nums, $f)
+            }
+  return
+    $F(1 to 10000) |
+
+(: XPath 3.1 :)
+ let
+         (:
+             The purpose of create is to return an empty tree.
+
+             It returns a sequence of functions,
+                - the first function represents the root of a tree,
+                - the second function represents the left subtree,
+                - and the third function represents the right subtree.
+             The value of each function is an empty sequence.
+         :)
+         $create := (
+                                function() { () }      (: root :),
+                                function() { () }      (: left :),
+                                function() { () }      (: right :)
+                            ),
+
+
+         (:
+             empty() returns a boolean value,
+             indicating whether $tree is empty.
+
+             $tree is empty in either of these two cases:
+             1. $tree is the empty sequence (it doesn't contain any functions).
+             2. $tree contains a sequence of three functions, but the first
+                  function - representing the root - is empty (i.e., if you invoke the
+                  first function it returns the empty sequence).
+         :)
+         $empty := function($tree as function(*)*)
+                           {
+                                empty($tree) or empty($tree[1]())
+                           },
+
+
+         (:
+             root()returns the value of the root node.
+
+             This function takes one argument, $tree. Since $tree
+             is represented by a sequence of functions, returning the
+             value of the root node actually means returning the value of
+             the function that corresponds to the root node.
+
+             If $tree is empty then the empty sequence is returned. Otherwise
+             the *value* of executing the first function in $tree  is returned (recall
+             that a tree is represented by a sequence of functions, the first
+             function representing the root of the tree).
+
+             Note: $tree[1] is the first function whereas
+                        $tree[1]() is the *value* of executing the first function.
+         :)
+         $root := function($tree as function(*)*)
+                        {
+                              if ($empty($tree))
+                                  then ()
+                                  else $tree[1]()
+                        },
+
+
+         (:
+             left()returns the left subtree.
+
+             This function takes one argument, $tree. Since $tree is represented
+             by a sequence of functions, returning the left subtree
+             actually means returning the value of executing the function that corresponds
+             to the left subtree.
+
+             If $tree is empty then the empty sequence is returned. Otherwise
+             the *value* of executing the second function in $tree is returned (recall
+             that a tree is represented by a sequence of functions, the second
+             function representing the left subtree).
+
+             Note: $tree[2] is the second function whereas
+                        $tree[2]() is the *value* of executing the second function.
+         :)
+         $left := function($tree as function(*)*)
+                      {
+                            if ($empty($tree)) then ()
+                            else
+                                  if ($empty($tree[2])) then ()
+                                  else $tree[2]()
+                      },
+
+
+         (:
+             right() returns the right subtree.
+
+             This function takes one argument, $tree. Since $tree is represented
+             by a sequence of functions, returning the right subtree actually
+             means returning the value of executing the function that corresponds to the
+             right subtree.
+
+             If $tree is empty then the empty sequence is returned. Otherwise
+             the *value* of executing the third function in $tree is returned (recall
+             that a tree is represented by a sequence of functions, the third
+             function representing the right subtree).
+         :)
+         $right := function($tree as function(*)*)
+                        {
+                              if ($empty($tree)) then ()
+                             else
+                                   if ($empty($tree[3])) then ()
+                                   else $tree[3]()
+                        },
+
+
+         $numeric-less-than-comparator :=
+	         function( $arg1 as xs:decimal,
+	                           $arg2 as xs:decimal
+	                         ) as xs:boolean
+	         {
+	               $arg1  lt   $arg2
+	         },
+
+
+         (:
+             insert() takes a $tree (BST) and a $item and produces a new BST that is the result
+             of inserting $item as a tree-node in $tree.  A BST is a persistent (functional) data-type.
+             Insertions or deletions are never done “in place” – instead a new BST is produced.
+
+             The new node is inserted at:
+             - if $tree is empty then as root node.
+             - if the value of $item is less than the value of  the root node then
+               the new tree-node is inserted into the left subtree (note the recursive definition)
+             - else the new tree-node is inserted into the right subtree (again note the recursive
+               definition)
+
+             Here are the steps taken if $tree is empty:
+             - $item specified to be the result of  the  root function. That is, the root function,
+               if invoked, it returns $item.
+             - A left function is created such that, if invoked, will return an empty subtree.
+             - A right function is created such that, if invoked, will return an empty subtree.
+
+             The insert function is recursive. Recursion with anonymous functions requires
+             a helper function as discussed before.
+         :)
+         $insert-helper :=
+	         function( $tree as function(*)*,
+	                          $item as item(),
+	                          $less-than-comparator as function(item(), item()) as xs:boolean,
+	                          $insert-helper
+	                         )
+	         {
+	         if ($empty($tree)) then
+	               (
+	                     function() {$item}     (: root :),
+	                     function() {()}            (: left :),
+	                     function() {()}            (: right :)
+	               )
+	          else if ($less-than-comparator($item, $root($tree))) then
+	               (
+	                     function() {$root($tree)}                           	(: root :),
+
+	                     function() {$insert-helper( $left($tree),
+	                                                                     $item,
+	                                                                     $less-than-comparator,
+	                                                                     $insert-helper)
+	                                        }   				(: left :),
+
+	                     function() {$right($tree)}                          	(: right :)
+	                )
+	          else
+	               (
+	                     function() {$root($tree)}                          	(: root :),
+	                     function() {$left($tree)}                           	(: left :),
+
+	                     function() {$insert-helper( $right($tree),
+	                                                                     $item,
+	                                                                     $less-than-comparator,
+	                                                                     $insert-helper)
+	                                          }      				  (: right :)
+	                )
+	         },
+
+
+         $insert :=
+	         function ( $tree as function(*)*,
+	                           $item as item(),
+	                           $less-than-comparator as function(item(), item()) as xs:boolean
+	                         )
+	         {
+	               $insert-helper($tree, $item, $less-than-comparator, $insert-helper)
+	         },
+
+
+         (:
+             print() produces an XML document that represents the BST $tree.
+
+             The XML document produced by  print()  consists of:
+             1. A root element that represents the value of executing the root function.
+             2. A left element that represents the value of print() on the left subtree
+                (note the recursive definition).
+             3. A right element that represents the value of print() on the right subtree
+                (note the recursive definition).
+
+            The $print-helper function produces the markup
+             as a string and then the $printer function converts
+             this string into an XML document by calling the  parse-xml() function.
+         :)
+         $print-helper :=
+	         function ( $tree as function(*)*,
+	                           $print-helper
+	                          )
+	                          as xs:string?
+	         {
+	         if (not($empty($tree))) then
+	                 concat('<tree>',
+	                                    '<root>',
+	                                          $root($tree),
+	                                    '</root>',
+	                                    '<left>',
+	                                          $print-helper($left($tree),$print-helper),
+	                                    '</left>',
+	                                    '<right>',
+	                                          $print-helper($right($tree),$print-helper),
+	                                    '</right>',
+	                            '</tree>'
+	                           )
+	          else ()
+	          },
+
+
+         $print := function ($tree as function(*)*)
+                         {parse-xml($print-helper($tree, $print-helper))/*},
+
+
+         (:
+             populate() produces a new tree from its BST argument $tree by inserting
+             the value of the head() of the sequence $items onto $tree and then inserting
+             the tail() of the sequence $items onto the result.
+         :)
+         $populate-helper :=
+	         function ( $tree as function(*)*,
+	                           $items as item()*,
+	                           $less-than-comparator as function(item(), item()) as xs:boolean,
+	                           $populate-helper
+	                         )
+	         {
+	             if (empty($items)) then $tree
+	             else
+	                  $populate-helper( $insert($tree, $items[1], $less-than-comparator),
+	                                                    $items[position() gt 1],
+	                                                    $less-than-comparator,
+	                                                    $populate-helper
+	                                                  )
+	         },
+
+
+         $populate :=
+	         function( $tree as function(*)*,
+	                           $items as item()*,
+	                           $less-than-comparator as function(item(), item()) as xs:boolean
+	                         )
+	         {$populate-helper($tree, $items, $less-than-comparator, $populate-helper)}
+
+	  (: Finally, make the function libary :)
+	 return
+      map {'create'   := $create,
+           'empty'    := $empty,
+
+           'root'     := $root,
+           'left'     := $left,
+           'right'    := $right,
+
+           'insert'   := $insert,
+
+           'populate' := $populate,
+           'print'    := $print,
+
+           'numeric-less-than-comparator'     := $numeric-less-than-comparator
+          }
+
 
 (: The following should have errors :)
 10divide3 + 2 |
