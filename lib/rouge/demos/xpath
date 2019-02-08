@@ -1,2 +1,2 @@
-(: This is a test :)
-following-sibling::para[position()=last()]
+(: Authors named Bob Joe who didn't graduate from Harvard :)
+//author[first-name = "Joe" and last-name = "Bob"][degree/@from != "Harvard"]
