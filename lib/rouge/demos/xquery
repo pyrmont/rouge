@@ -1,0 +1,27 @@
+declare namespace html = "http://www.w3.org/1999/xhtml";
+
+declare function local:price-list($price-doc as document-node()) {
+    <html>
+      <head>
+        <title>Price List</title>
+        <link href="companystandard.css"/>
+      </head>
+      <body>
+        <h1>Price List</h1>
+        <table>
+          <tr>
+            <th>Prod number</th>
+            <th>Price</th>
+          </tr>
+          {for $prod in $price-doc//priceList[@effDate < current-date()]/prod
+          return
+          <tr>
+            <td>{data($prod/@num)}</td>
+            <td>{if (exists($prod/discount))
+                 then $prod/price - $prod/discount
+                 else data($prod/price)}</td>
+            </tr>
+        }</table>
+      </body>
+    </html>
+};
