@@ -11,7 +11,9 @@ module Rouge
       end
 
       def stream(tokens, &b)
+        first_line = true
         token_lines(tokens) do |line|
+          first_line ? first_line = false : yield("\n")
           yield "<#{@tag_name} class=#{next_line_class}>"
           line.each do |tok, val|
             yield @formatter.span(tok, val)
