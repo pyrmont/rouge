@@ -7,7 +7,7 @@ module Rouge
       title "Common Lisp"
       desc "The Common Lisp variant of Lisp (common-lisp.net)"
       tag 'common_lisp'
-      aliases 'cl', 'common-lisp', 'elisp', 'emacs-lisp'
+      aliases 'cl', 'common-lisp', 'elisp', 'emacs-lisp', 'lisp'
 
       filenames '*.cl', '*.lisp', '*.asd', '*.el' # used for Elisp too
       mimetypes 'text/x-common-lisp'
@@ -320,7 +320,7 @@ module Rouge
 
         rule /\(/, Punctuation, :root
         rule /\)/, Punctuation do
-          if stack.empty?
+          if stack.size == 1
             token Error
           else
             token Punctuation
