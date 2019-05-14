@@ -20,6 +20,8 @@ module Rouge
         as dynamicType is new super self Self Type __COLUMN__ __FILE__ __FUNCTION__ __LINE__
 
         associativity didSet get infix inout mutating none nonmutating operator override postfix precedence prefix set unowned weak willSet throws rethrows precedencegroup
+
+        #available #colorLiteral #column #else #elseif #endif #error #file #fileLiteral #function #if #imageLiteral #line #selector #sourceLocation #warning
       )
 
       declarations = Set.new %w(
@@ -73,7 +75,7 @@ module Rouge
         rule /'(\\.|.)'/, Str::Char
         rule /(\d+\*|\d*\.\d+)(e[+-]?[0-9]+)?/i, Num::Float
         rule /\d+e[+-]?[0-9]+/i, Num::Float
-        rule /0_?[0-7]+(?:_[0-7]+)*/, Num::Oct
+        rule /0o?[0-7]+(?:_[0-7]+)*/, Num::Oct
         rule /0x[0-9A-Fa-f]+(?:_[0-9A-Fa-f]+)*/, Num::Hex
         rule /0b[01]+(?:_[01]+)*/, Num::Bin
         rule %r{[\d]+(?:_\d+)*}, Num::Integer
@@ -163,6 +165,7 @@ module Rouge
         rule /\\[(]/, Str::Escape, :interp
         rule /\\u\{\h{1,8}\}/, Str::Escape
         rule /[^\\"]+/, Str
+        rule /"""/, Str, :pop!
         rule /"/, Str, :pop!
       end
 
