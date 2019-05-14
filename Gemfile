@@ -4,7 +4,6 @@ source 'http://rubygems.org'
 
 gemspec
 
-gem 'bundler', '~> 2.0'
 gem 'rake'
 
 gem 'minitest', '>= 5.0'
