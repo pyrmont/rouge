@@ -12,11 +12,6 @@ describe Rouge::Lexers::M68k do
       assert_guess :filename => 'foo.68k'
       assert_guess :filename => 'foo.m68k'
     end
-
-    it 'guesses by source' do
-      assert_guess :source => ' move '
-      assert_guess :source => ' d0'
-    end
   end
 end
 

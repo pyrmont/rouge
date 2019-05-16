@@ -14,11 +14,6 @@ module Rouge
       strings =  /".*"|'.*'|`.*`/
       word_specialchars_range = %q{[\w\(\)\-#\/\\\\%$\.\|'\"`\*!\+~<]}
  
-      def self.detect?(text)
-        return true if text =~ /\A.*?\p{Blank}(move(.[bwl])?)\p{Blank}.*/
-        return true if text =~ /\A.*?\p{Blank}(d0).*/
-      end
-      
       opcode = %w(
           abcd add adda addi addq addx and andi asl asr
 
