@@ -44,7 +44,7 @@ module Rouge
         # One symbol operators: + - / * % = < > ^ | !
         rule %r/[+-\/*%=<>^\|!]/, Operator
         # Lambda operator
-        rule %r/\\/, Operator
+        rule %r(\\), Operator
         # Not standard Elm operators, but these symbols can be used for custom inflix operators. We need to highlight them as operators as well.
         rule %r/[@\#$&~?]/, Operator
 

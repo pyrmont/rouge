@@ -153,7 +153,7 @@ module Rouge
       state :text do
         rule %r/[^\\\n]+/, Str
         rule %r/\\\n/, Str::Escape
-        rule %r/\\/, Str
+        rule %r(\\), Str
         rule %r/\n/, Text, :pop!
       end
 

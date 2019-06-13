@@ -155,7 +155,7 @@ module Rouge
       end
 
       state :character do
-        rule %r/\\/ do
+        rule %r(\\) do
           token Str::Escape
           goto :character_end
           push :escape
@@ -180,7 +180,7 @@ module Rouge
 
       state :string do
         rule %r/"/, Str, :pop!
-        rule %r/\\/, Str::Escape, :escape
+        rule %r(\\), Str::Escape, :escape
         rule %r/[^\\"]+/, Str
       end
 

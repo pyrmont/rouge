@@ -642,7 +642,7 @@ module Rouge
         rule %r/%\w\b/, Literal::String::Other
         rule %r/\\\\/, Literal::String::Escape
         rule %r/\\\"/, Literal::String::Escape
-        rule %r/\\/, Literal::String::Escape
+        rule %r(\\), Literal::String::Escape
         rule %r/[^"]/, Literal::String
         rule %r/\"/, Literal::String::Double, :pop! #punctuation for string
       end

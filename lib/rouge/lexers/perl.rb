@@ -206,7 +206,7 @@ module Rouge
         tok = Str::Other
         state :"#{name}_string" do
           rule %r/\\[#{open}#{close}\\]/, tok
-          rule %r/\\/, tok
+          rule %r(\\), tok
           rule(/#{open}/) { token tok; push }
           rule %r/#{close}/, tok, :pop!
           rule %r/[^#{open}#{close}\\]+/, tok
