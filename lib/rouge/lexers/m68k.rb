@@ -137,7 +137,7 @@ module Rouge
         rule %r/\\([\\abfnrtv"']|x[a-fA-F0-9]{2,4}|[0-7]{1,3})/, Str::Escape
         rule %r/[^\\"\n]+/, Str
         rule %r/\\\n/, Str
-        rule %r(\\), Str # stray backslash
+        rule %r/\\/, Str # stray backslash
       end
     end
   end

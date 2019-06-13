@@ -78,7 +78,7 @@ module Rouge
         rule %r(#(.*)?\n?), Comment::Single
         rule %r/[\[\]{}:(),;]/, Punctuation
         rule %r/\\\n/, Text
-        rule %r(\\), Text
+        rule %r/\\/, Text
 
         rule %r/(in|is|and|or|not)\b/, Operator::Word
         rule %r/(<<|>>|\/\/|\*\*)=?/, Operator

@@ -189,7 +189,7 @@ module Rouge
         rule %r/#.*$/, Comment
         rule OPERATORS, Operator
         rule %r/\\\n/, Text
-        rule %r(\\), Text
+        rule %r/\\/, Text
 
 
         # functions and macros

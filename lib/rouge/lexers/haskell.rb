@@ -180,7 +180,7 @@ module Rouge
 
       state :string do
         rule %r/"/, Str, :pop!
-        rule %r(\\), Str::Escape, :escape
+        rule %r/\\/, Str::Escape, :escape
         rule %r/[^\\"]+/, Str
       end
 
