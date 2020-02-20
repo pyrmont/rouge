@@ -127,7 +127,7 @@ module Rouge
       end
 
       state :link do
-        rule %r/(\[)(#{edot}*?)(\])/ do
+        rule %r/(\[)(#{edot}*?)(\]\(|\]\[)/ do
           groups Punctuation, Str::Symbol, Punctuation
           pop!
         end
